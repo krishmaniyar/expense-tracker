@@ -9,21 +9,27 @@ import Input from "@/components/Input";
 import * as Icons from "phosphor-react-native";
 import Button from "@/components/Button";
 import { useRouter } from "expo-router";
+import { useAuth } from "@/contexts/authContext";
 
 const Login = () => {
   const emailRef = useRef("");
   const passwordRef = useRef("");
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const { login: loginUser } = useAuth();
 
   const handleSubmit = async () => {
-    if(!emailRef.current || !passwordRef.current) {
-        Alert.alert('Login', "Please fill all the fields");
-        return;
+    if (!emailRef.current || !passwordRef.current) {
+      Alert.alert("Login", "Please fill all the fields");
+      return;
     }
-    console.log('email: ', emailRef.current)
-    console.log('password: ', passwordRef.current)
-  }
+    setIsLoading(true);
+    const res = await loginUser(emailRef.current, passwordRef.current);
+    setIsLoading(false);
+    if (!res.success) {
+      Alert.alert("Login", res.msg);
+    }
+  };
 
   return (
     <ScreenWrapper>
@@ -64,24 +70,22 @@ const Login = () => {
               />
             }
           />
-          <Typo size={14} color={colors.text} style={{alignSelf: 'flex-end'}}>
+          <Typo size={14} color={colors.text} style={{ alignSelf: "flex-end" }}>
             Forgot Password
           </Typo>
-          <Button loading={isLoading} onPress = {handleSubmit}>
-            <Typo fontWeight={'700'} color={colors.black} size={21}>
-                Login
+          <Button loading={isLoading} onPress={handleSubmit}>
+            <Typo fontWeight={"700"} color={colors.black} size={21}>
+              Login
             </Typo>
           </Button>
         </View>
         <View style={styles.footer}>
-            <Typo size={15} >
-                Don't have an account?
+          <Typo size={15}>Don't have an account?</Typo>
+          <Pressable onPress={() => router.navigate("/(auth)/register")}>
+            <Typo size={15} fontWeight={"700"} color={colors.primary}>
+              Sign Up
             </Typo>
-            <Pressable onPress={() => router.navigate('/(auth)/register')}>
-                <Typo size={15} fontWeight={'700'} color={colors.primary}>
-                    Sign Up
-                </Typo>
-            </Pressable>
+          </Pressable>
         </View>
       </View>
     </ScreenWrapper>

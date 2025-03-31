@@ -9,6 +9,7 @@ import Input from "@/components/Input";
 import * as Icons from "phosphor-react-native";
 import Button from "@/components/Button";
 import { useRouter } from "expo-router";
+import { useAuth } from "@/contexts/authContext";
 
 const Register = () => {
   const nameRef = useRef("");
@@ -16,15 +17,24 @@ const Register = () => {
   const passwordRef = useRef("");
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const { register: registerUser } = useAuth();
 
   const handleSubmit = async () => {
     if (!emailRef.current || !passwordRef.current || !nameRef.current) {
       Alert.alert("Login", "Please fill all the fields");
       return;
     }
-    console.log("name: ", nameRef.current);
-    console.log("email: ", emailRef.current);
-    console.log("password: ", passwordRef.current);
+    setIsLoading(true);
+    const res = await registerUser(
+      emailRef.current,
+      passwordRef.current,
+      nameRef.current
+    );
+    setIsLoading(false);
+    console.log('register result: ', res);
+    if(!res.success) {
+      Alert.alert('Sign Up', res.msg);
+    }
   };
 
   return (
@@ -85,7 +95,7 @@ const Register = () => {
         </View>
         <View style={styles.footer}>
           <Typo size={15}>Already have an account?</Typo>
-          <Pressable onPress={() => router.navigate('/(auth)/login')}>
+          <Pressable onPress={() => router.navigate("/(auth)/login")}>
             <Typo size={15} fontWeight={"700"} color={colors.primary}>
               Login
             </Typo>
